@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/til_fr_place_ac_text_input_lly"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/til_fr_place_ac_text_input_lly_margin">
+
+    <AutoCompleteTextView
+        android:id="@+id/atv_fr_place_ac_auto_complete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/atv_fr_place_ac_auto_complete_hint"
+        android:textAppearance="?android:textAppearanceSmall" />
+</android.support.design.widget.TextInputLayout>

@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">LocationPhotoFinder</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="error_implement_fr_interact">must implement OnFragmentInteractionListener</string>
+    <string name="atv_fr_place_ac_auto_complete_hint">Entry Address For Search Photos</string>
+    <string name="permissons_required">Location permissions denided</string>
+</resources>
