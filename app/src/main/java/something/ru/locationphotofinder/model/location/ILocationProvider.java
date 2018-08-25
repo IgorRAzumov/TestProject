@@ -7,5 +7,7 @@ import io.reactivex.Observable;
 
 public interface ILocationProvider {
 
-    Observable<Location> getLocation();
+    Completable checkLocationResponse();
+
+    Observable<Location> listenLocation();
 }

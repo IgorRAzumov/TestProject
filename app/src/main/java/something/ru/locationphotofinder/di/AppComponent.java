@@ -8,6 +8,10 @@ import something.ru.locationphotofinder.di.modules.LocationModule;
 import something.ru.locationphotofinder.di.modules.MapHelperModule;
 import something.ru.locationphotofinder.di.modules.PermissionsModule;
 import something.ru.locationphotofinder.di.modules.RepositoryModule;
+import something.ru.locationphotofinder.presenter.AuthPresenter;
+import something.ru.locationphotofinder.presenter.MapPresenter;
+import something.ru.locationphotofinder.presenter.PhotosPresenter;
+import something.ru.locationphotofinder.presenter.geo_data.GeoDataPresenter;
 import something.ru.locationphotofinder.view.fragment.map.MapFragment;
 
 @Singleton
@@ -16,4 +20,12 @@ import something.ru.locationphotofinder.view.fragment.map.MapFragment;
 public interface AppComponent {
 
     void inject(MapFragment mapFragment);
+
+    void inject(MapPresenter presenter);
+
+    void inject(GeoDataPresenter presenter);
+
+    void inject(PhotosPresenter presenter);
+
+    void inject(AuthPresenter presenter);
 }

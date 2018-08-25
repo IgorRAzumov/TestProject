@@ -1,4 +1,4 @@
-package something.ru.locationphotofinder.view.fragment.autocomplete;
+package something.ru.locationphotofinder.view.fragment.geo_data;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,39 +11,44 @@ import android.widget.AutoCompleteTextView;
 
 import com.arellomobile.mvp.MvpAppCompatFragment;
 import com.arellomobile.mvp.presenter.InjectPresenter;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.arellomobile.mvp.presenter.ProvidePresenter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import something.ru.locationphotofinder.App;
 import something.ru.locationphotofinder.R;
-import something.ru.locationphotofinder.presenter.PlaceAutocompletePresenter;
+import something.ru.locationphotofinder.presenter.geo_data.GeoDataPresenter;
 import something.ru.locationphotofinder.view.adapter.PlaceAutocompleteAdapter;
 
 
-public class PlaceAutocompleteFragment extends MvpAppCompatFragment implements PlaceAutocompleteView {
-    public static final String TAG = PlaceAutocompleteFragment.class.getSimpleName();
-    private static final LatLngBounds BOUNDS_RUSSIA = new LatLngBounds.Builder()
-            .include(new LatLng(55.751244, 37.618423)).build();
+public class GeoDataFragment extends MvpAppCompatFragment implements GeoDataView {
+    public static final String TAG = GeoDataFragment.class.getSimpleName();
 
     @BindView(R.id.atv_fr_place_ac_auto_complete)
     AutoCompleteTextView placeAutocompleteText;
 
     @InjectPresenter
-    PlaceAutocompletePresenter placeAutocompletePresenter;
+    GeoDataPresenter geoDataPresenter;
 
-    private PlaceAutocompleteAdapter placeAdapter;
     private Unbinder unbinder;
     private OnFragmentInteractionListener onFragmentInteractionListener;
 
-    public PlaceAutocompleteFragment() {
+    public GeoDataFragment() {
 
     }
 
-    public static PlaceAutocompleteFragment newInstance() {
-        return new PlaceAutocompleteFragment();
+    public static GeoDataFragment newInstance() {
+        return new GeoDataFragment();
+    }
+
+    @ProvidePresenter
+    GeoDataPresenter providePresenter() {
+        GeoDataPresenter presenter = new GeoDataPresenter(
+                AndroidSchedulers.mainThread());
+        App.getInstance().getAppComponent().inject(presenter);
+        return presenter;
     }
 
     @Override
@@ -65,6 +70,29 @@ public class PlaceAutocompleteFragment extends MvpAppCompatFragment implements P
         return view;
     }
 
+
+    @Override
+    public void init() {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+
+        placeAutocompleteText.setAdapter(new PlaceAutocompleteAdapter(context, geoDataPresenter));
+        placeAutocompleteText.setThreshold(3);
+        placeAutocompleteText.setOnItemClickListener(createPlaceClickListener());
+    }
+
+    @Override
+    public void showPhotos(double latitude, double longitude) {
+        onFragmentInteractionListener.showPhotos(latitude, longitude);
+    }
+
+    @Override
+    public void errorLoadPlaceInfo() {
+
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -77,29 +105,17 @@ public class PlaceAutocompleteFragment extends MvpAppCompatFragment implements P
         onFragmentInteractionListener = null;
     }
 
-    @Override
-    public void init() {
-        Context context = getContext();
-        if (context == null) {
-            return;
-        }
-
-        placeAdapter = new PlaceAutocompleteAdapter(context, Places.getGeoDataClient(context),
-                BOUNDS_RUSSIA, null);
-        placeAutocompleteText.setAdapter(placeAdapter);
-        placeAutocompleteText.setThreshold(3);
-        placeAutocompleteText.setOnItemClickListener(createPlaceClickListener());
-
-    }
 
     private AdapterView.OnItemClickListener createPlaceClickListener() {
         return (parent, view, position, id) -> {
             onFragmentInteractionListener.hideKeyboard(view.getApplicationWindowToken());
-            placeAutocompletePresenter.onPlaceSelected(placeAdapter.getItem(position));
+            geoDataPresenter.onPlaceSelected(position);
         };
     }
 
     public interface OnFragmentInteractionListener {
         void hideKeyboard(IBinder applicationWindowToken);
+
+        void showPhotos(double latitude, double longitude);
     }
 }

@@ -1,8 +1,6 @@
 package something.ru.locationphotofinder.model.map;
 
 
-import com.google.android.gms.maps.model.LatLng;
-
 import io.reactivex.Observable;
 
 public interface IMapHelper<T, M, L> {
@@ -12,6 +10,8 @@ public interface IMapHelper<T, M, L> {
     Observable<L> registerMapClickListener();
 
     void drawMarker(L latLang);
+
+    void drawMarker(double longitude, double latitude);
 
     void setEnabledLocation();
 }

@@ -1,18 +1,18 @@
 package something.ru.locationphotofinder.model.remote;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 
 import com.vk.sdk.api.VKError;
-
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
+import com.vk.sdk.api.model.VKApiPhoto;
+
+import java.util.List;
 
 import io.reactivex.Single;
 import something.ru.locationphotofinder.model.entity.PhotosResponse;
 
-public class NetworkHelper {
+public class NetworkHelper implements INetworkHelper {
     private static final String ALL_ATTEMPT_FAILED = "all attempt failed";
     private static final int FIST_REQUEST_PARAMETR = 0;
 
@@ -93,5 +93,13 @@ public class NetworkHelper {
 
     public VKRequest getPequest() {
         return null;
+    }
+
+    @Override
+    public Single<List<VKApiPhoto>> loadPhotos(double latitude, double longitude,
+                                               String startTime, String endTime,
+                                               String radius, String sort) {
+        return null;
+
     }
 }

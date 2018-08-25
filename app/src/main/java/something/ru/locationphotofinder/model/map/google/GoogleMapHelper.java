@@ -2,6 +2,7 @@ package something.ru.locationphotofinder.model.map.google;
 
 import android.annotation.SuppressLint;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -13,17 +14,11 @@ import io.reactivex.Observable;
 import something.ru.locationphotofinder.model.map.IMapHelper;
 
 public class GoogleMapHelper implements IMapHelper<GoogleMap, BitmapDescriptor, LatLng> {
+    private static final int STREET_ZOOM = 15;
     private GoogleMap googleMap;
     private Marker marker;
     private MarkerOptions icon;
     private boolean myLocationEnabled;
-
-
-    private void setupMap() {
-        UiSettings uiSettings = googleMap.getUiSettings();
-        uiSettings.setZoomControlsEnabled(true);
-        setupMyLocationLayer();
-    }
 
     @Override
     public void init(GoogleMap map, BitmapDescriptor markerIcon) {
@@ -33,6 +28,15 @@ public class GoogleMapHelper implements IMapHelper<GoogleMap, BitmapDescriptor, 
         icon = new MarkerOptions().icon(markerIcon);
         googleMap = map;
         setupMap();
+    }
+
+    @SuppressLint("MissingPermission")
+    private void setupMap() {
+        if (googleMap != null) {
+            UiSettings uiSettings = googleMap.getUiSettings();
+            uiSettings.setZoomControlsEnabled(true);
+            googleMap.setMyLocationEnabled(myLocationEnabled);
+        }
     }
 
     @Override
@@ -48,19 +52,21 @@ public class GoogleMapHelper implements IMapHelper<GoogleMap, BitmapDescriptor, 
         } else {
             marker.setPosition(latLang);
         }
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLang));
+    }
+
+    @Override
+    public void drawMarker(double longitude, double latitude) {
+        drawMarker(new LatLng(latitude, longitude));
     }
 
 
+    @SuppressLint("MissingPermission")
     @Override
     public void setEnabledLocation() {
         myLocationEnabled = true;
         if (googleMap != null) {
-            setupMyLocationLayer();
+            googleMap.setMyLocationEnabled(myLocationEnabled);
         }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void setupMyLocationLayer() {
-        googleMap.setMyLocationEnabled(myLocationEnabled);
     }
 }

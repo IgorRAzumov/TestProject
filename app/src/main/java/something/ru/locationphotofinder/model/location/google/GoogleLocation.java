@@ -11,7 +11,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 
 import io.reactivex.Completable;
@@ -42,7 +41,6 @@ public class GoogleLocation implements ILocationProvider {
         this.settingsClient = settingsClient;
     }
 
-    @SuppressLint("MissingPermission")
     public Completable checkLocationResponse() {
         return Completable.create(emitter -> {
             LocationSettingsRequest locationSettingsRequest = new LocationSettingsRequest.Builder()
@@ -51,16 +49,12 @@ public class GoogleLocation implements ILocationProvider {
 
             settingsClient
                     .checkLocationSettings(locationSettingsRequest)
-                    .addOnSuccessListener(response -> emitter.onComplete())
-                    .addOnFailureListener(exception -> {
-                        switch (((ApiException) exception).getStatusCode()) {
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE: {
-                                emitter.onError(new RuntimeException(ERROR_LOCATIONS_SETTINGS));
-                                break;
-                            }
-                            default: {
-                                emitter.onError(new RuntimeException());
-                            }
+                    .addOnCompleteListener(task -> {
+                        try {
+                            task.getResult(ApiException.class);
+                            emitter.onComplete();
+                        } catch (ApiException exception) {
+                            emitter.onError(exception);
                         }
                     });
         });
@@ -68,27 +62,34 @@ public class GoogleLocation implements ILocationProvider {
 
 
     @SuppressLint("MissingPermission")
-    public Observable<Location> getLocation() {
+    public Observable<Location> listenLocation() {
         return Observable.create((ObservableEmitter<Location> emitter) -> {
-            checkLocationResponse().subscribe(() -> {
-                fusedLocationProviderClient
-                        .getLastLocation()
-                        .addOnSuccessListener(lastLocation -> {
-                            if (lastLocation != null) {
-                                emitter.onNext(lastLocation);
-                            }
-                        });
-                locationRequest = getLocationRequest().setNumUpdates(QUANTITY_LOCATION_UPDATES);
-                locationCallback = new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        super.onLocationResult(locationResult);
-                        emitter.onNext(locationResult.getLastLocation());
-                    }
-                };
-                fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
-            }, throwable -> emitter.onError(new RuntimeException()));
+            fusedLocationProviderClient
+                    .getLastLocation()
+                    .addOnSuccessListener(lastLocation -> {
+                        if (lastLocation != null) {
+                            emitter.onNext(lastLocation);
+                        }
+                    });
 
+            locationRequest = getLocationRequest();
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    super.onLocationResult(locationResult);
+                    emitter.onNext(locationResult.getLastLocation());
+                }
+
+                @Override
+                public void onLocationAvailability(LocationAvailability locationAvailability) {
+                    super.onLocationAvailability(locationAvailability);
+                    if (!locationAvailability.isLocationAvailable()) {
+                        emitter.onError(new RuntimeException(ERROR_NOT_AVAILABILITY_LOCATION));
+                    }
+                }
+            };
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
+                    null);
         }).doOnTerminate(() -> {
             if (locationCallback != null) {
                 fusedLocationProviderClient.removeLocationUpdates(locationCallback);
@@ -96,6 +97,14 @@ public class GoogleLocation implements ILocationProvider {
             }
         });
     }
+
+    private LocationRequest getLocationRequest() {
+        return new LocationRequest()
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
 
     private String getProviderType() {
         boolean isGPSLocation = false;
@@ -105,15 +114,5 @@ public class GoogleLocation implements ILocationProvider {
         return (isGPSLocation)
                 ? LocationManager.GPS_PROVIDER
                 : LocationManager.NETWORK_PROVIDER;
-    }
-
-    private LocationRequest getLocationRequest() {
-        String providerType = getProviderType();
-        return new LocationRequest()
-                .setInterval(UPDATE_INTERVAL)
-                .setFastestInterval(FASTEST_INTERVAL)
-                .setPriority((providerType.equalsIgnoreCase(LocationManager.GPS_PROVIDER))
-                        ? LocationRequest.PRIORITY_HIGH_ACCURACY
-                        : LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 }

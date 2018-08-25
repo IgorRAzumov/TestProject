@@ -1,6 +1,7 @@
 package something.ru.locationphotofinder.view.screen.main;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentTransaction;
@@ -11,12 +12,13 @@ import com.arellomobile.mvp.presenter.InjectPresenter;
 
 import something.ru.locationphotofinder.R;
 import something.ru.locationphotofinder.presenter.MainPresenter;
-import something.ru.locationphotofinder.view.fragment.autocomplete.PlaceAutocompleteFragment;
+import something.ru.locationphotofinder.view.fragment.geo_data.GeoDataFragment;
 import something.ru.locationphotofinder.view.fragment.map.MapFragment;
+import something.ru.locationphotofinder.view.screen.photos.PhotosActivity;
 
 public class MainActivity extends MvpAppCompatActivity implements MainView,
         MapFragment.OnFragmentInteractionListener,
-        PlaceAutocompleteFragment.OnFragmentInteractionListener {
+        GeoDataFragment.OnFragmentInteractionListener {
 
     @InjectPresenter
     MainPresenter mainPresenter;
@@ -41,8 +43,8 @@ public class MainActivity extends MvpAppCompatActivity implements MainView,
     public void showAutocompleteFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fl_activity_main_frame, PlaceAutocompleteFragment.newInstance(),
-                        PlaceAutocompleteFragment.TAG)
+                .replace(R.id.fl_activity_main_frame, GeoDataFragment.newInstance(),
+                        GeoDataFragment.TAG)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commit();
     }
@@ -53,5 +55,13 @@ public class MainActivity extends MvpAppCompatActivity implements MainView,
         if (in != null) {
             in.hideSoftInputFromWindow(applicationWindowToken, 0);
         }
+    }
+
+    @Override
+    public void showPhotos(double latitude, double longitude) {
+        Intent intent = new Intent(this, PhotosActivity.class);
+        intent.putExtra(getString(R.string.latitude_key), latitude);
+        intent.putExtra(getString(R.string.longitude_key), longitude);
+        startActivity(intent);
     }
 }

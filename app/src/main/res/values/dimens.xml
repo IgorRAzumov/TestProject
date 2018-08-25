@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="til_fr_place_ac_text_input_lly_margin">16dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
 </resources>
