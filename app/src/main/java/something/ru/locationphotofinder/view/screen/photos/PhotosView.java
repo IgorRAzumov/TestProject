@@ -11,4 +11,8 @@ public interface PhotosView extends MvpView {
     void showErrorSelectPlace();
 
     void showErrorLoadPhotosMessage();
+
+    void showLoading();
+
+    void hideLoading();
 }

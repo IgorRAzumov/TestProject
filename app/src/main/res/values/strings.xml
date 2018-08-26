@@ -10,4 +10,5 @@
     <string name="main_fragment_no_login_vk_button_text">SIGN IN</string>
     <string name="main_fragment_login_vk_button_text">NO SIGN IN</string>
     <string name="main_fragment_refresh_button_text">REFRESH</string>
+
 </resources>

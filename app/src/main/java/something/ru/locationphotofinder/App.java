@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKAccessTokenTracker;
+import com.vk.sdk.VKSdk;
 
 import something.ru.locationphotofinder.di.AppComponent;
 import something.ru.locationphotofinder.di.DaggerAppComponent;
@@ -42,6 +43,7 @@ public class App extends Application {
                 .appModule(new AppModule(this))
                 .build();
 
+        VKSdk.initialize(this);
         vkAccessTokenTracker.startTracking();
     }
 

@@ -48,4 +48,14 @@ public class PhotosActivity extends MvpAppCompatActivity implements PhotosView {
     public void showErrorLoadPhotosMessage() {
 
     }
+
+    @Override
+    public void showLoading() {
+
+    }
+
+    @Override
+    public void hideLoading() {
+
+    }
 }

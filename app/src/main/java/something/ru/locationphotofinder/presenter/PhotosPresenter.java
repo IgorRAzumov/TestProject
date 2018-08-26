@@ -35,13 +35,16 @@ public class PhotosPresenter extends MvpPresenter<PhotosView> {
             getViewState().showErrorSelectPlace();
             return;
         }
+
+        getViewState().showLoading();
         photosRepository
                 .loadPhotos(latitude, longitude)
                 .subscribeOn(Schedulers.io())
                 .observeOn(scheduler)
                 .subscribe(photos -> {
-
+                    getViewState().hideLoading();
                 }, throwable -> {
+                    getViewState().hideLoading();
                     getViewState().showErrorLoadPhotosMessage();
                 });
     }
