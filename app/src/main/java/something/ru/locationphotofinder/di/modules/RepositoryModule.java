@@ -12,6 +12,8 @@ import dagger.Provides;
 import something.ru.locationphotofinder.model.location.ILocationProvider;
 import something.ru.locationphotofinder.model.place.IPlaceHelper;
 import something.ru.locationphotofinder.model.remote.INetworkHelper;
+import something.ru.locationphotofinder.model.repository.auth.AuthRepository;
+import something.ru.locationphotofinder.model.repository.auth.IAuthRepository;
 import something.ru.locationphotofinder.model.repository.geo.GeoRepository;
 import something.ru.locationphotofinder.model.repository.geo.IGeoRepository;
 import something.ru.locationphotofinder.model.repository.photos.IPhotosRepository;
@@ -21,14 +23,22 @@ import something.ru.locationphotofinder.model.repository.photos.PhotosRepository
 @Module(includes = {ApiModule.class, LocationModule.class, PlaceHelperModule.class})
 public class RepositoryModule {
 
+    @Singleton
     @Provides
-    IGeoRepository<Location, AutocompletePrediction, Place> repository(ILocationProvider locationProvider,
-                                                                       IPlaceHelper<AutocompletePrediction, Place> placeHelper) {
+    IGeoRepository<Location, AutocompletePrediction, Place> geoRepository(ILocationProvider locationProvider,
+                                                                          IPlaceHelper<AutocompletePrediction, Place> placeHelper) {
         return new GeoRepository(locationProvider, placeHelper);
     }
 
+    @Singleton
     @Provides
-    IPhotosRepository iPhotosRepository(INetworkHelper networkHelper) {
-        return new PhotosRepository(networkHelper);
+    IPhotosRepository photosRepository(INetworkHelper networkHelper, IAuthRepository authRepository) {
+        return new PhotosRepository(networkHelper, authRepository);
+    }
+
+    @Singleton
+    @Provides
+    IAuthRepository authRepository() {
+        return new AuthRepository();
     }
 }
